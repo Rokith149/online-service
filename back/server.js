@@ -27,6 +27,8 @@ mongoose
         console.log('MongoDB connected');
         // Start ping service
         require('./services/pingService');
-        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     })
-    .catch((err) => console.error(err));
+    .catch((err) => console.error('MongoDB Connection Error:', err));
+
+// Always listen so Render doesn't kill the container!
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
