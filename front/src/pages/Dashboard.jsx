@@ -14,6 +14,10 @@ const Dashboard = () => {
   const [monitorType, setMonitorType] = useState('HTTP');
   const [interval, setIntervalTime] = useState(5);
 
+  // Search and Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+
   const fetchMonitors = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -162,13 +166,36 @@ const Dashboard = () => {
 
       <div className="controls-bar">
         <div className="search-box">
-          <input type="text" placeholder="Search by name or URL" className="input-field" />
+          <input 
+            type="text" 
+            placeholder="Search by name or URL" 
+            className="input-field" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-        <button className="btn-secondary"><FiFilter /> Filter</button>
+        <button 
+          className="btn-secondary"
+          onClick={() => {
+             if (statusFilter === 'ALL') setStatusFilter('UP');
+             else if (statusFilter === 'UP') setStatusFilter('DOWN');
+             else setStatusFilter('ALL');
+          }}
+          style={{ 
+            backgroundColor: statusFilter !== 'ALL' ? 'rgba(255,255,255,0.1)' : 'transparent',
+            borderColor: statusFilter !== 'ALL' ? 'var(--text-primary)' : 'var(--border-color)'
+          }}
+        >
+          <FiFilter /> {statusFilter === 'ALL' ? 'Filter' : `Status: ${statusFilter}`}
+        </button>
       </div>
 
       <div className="monitors-list">
-        {monitors.map(monitor => {
+        {monitors.filter(m => {
+           const matchQuery = m.name?.toLowerCase().includes(searchQuery.toLowerCase()) || m.url?.toLowerCase().includes(searchQuery.toLowerCase());
+           const matchStatus = statusFilter === 'ALL' || m.status === statusFilter;
+           return matchQuery && matchStatus;
+        }).map(monitor => {
           const isDown = monitor.status === 'DOWN';
           const downDuration = isDown && monitor.latestIncident 
             ? calculateDuration(monitor.latestIncident.createdAt) 
