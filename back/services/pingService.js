@@ -16,7 +16,7 @@ const pingService = async () => {
                 await axios.get(monitor.url, { 
                     timeout: 10000,
                     validateStatus: function (status) {
-                        return status >= 200 && status < 500; // Accept 4xx as UP (often auth prompts or forbidden paths from bots)
+                        return status >= 200 && status < 400; // Accept 2xx and 3xx as UP, but treat 4xx and 5xx as DOWN
                     }
                 });
                 
