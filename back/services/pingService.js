@@ -11,8 +11,9 @@ const pingService = async () => {
         const monitors = await Monitor.find({});
         
         for (const monitor of monitors) {
+            let startTime;
             try {
-                const startTime = Date.now();
+                startTime = Date.now();
                 await axios.get(monitor.url, { 
                     timeout: 10000,
                     validateStatus: function (status) {
@@ -35,7 +36,7 @@ const pingService = async () => {
                     await monitor.save();
                 }
             } catch (error) {
-                const ms = Date.now() - startTime;
+                const ms = startTime ? Date.now() - startTime : 0;
                 if (!monitor.pingHistory) monitor.pingHistory = [];
                 monitor.pingHistory.push({ time: new Date(), ms });
                 if (monitor.pingHistory.length > 60) {
